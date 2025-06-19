@@ -1,0 +1,25 @@
+// filepath: c:\Users\justin.tremblay\Projects\fanuctp-lsp.vscode\fanuctp-lsp\language-configuration.json
+{
+    "comments": {
+        "lineComment": "!"
+    },
+    "brackets": [
+        ["{", "}"],
+        ["[", "]"],
+        ["(", ")"]
+    ],
+    "autoClosingPairs": [
+        ["{", "}"],
+        ["[", "]"],
+        ["(", ")"],
+        ["\"", "\""],
+        ["'", "'"]
+    ],
+    "surroundingPairs": [
+        ["{", "}"],
+        ["[", "]"],
+        ["(", ")"],
+        ["\"", "\""],
+        ["'", "'"]
+    ]
+}
