@@ -5,78 +5,30 @@ import {
     LanguageClient,
     LanguageClientOptions,
     ServerOptions,
-    StreamInfo,
     Trace,
     ErrorAction,
-    CloseAction
+    CloseAction,
+    Executable,
+    TransportKind
 } from 'vscode-languageclient/node';
 
 let client: LanguageClient | undefined;
 
 export function activate(context: ExtensionContext) {
     const outputChannel = vscode.window.createOutputChannel('Fanuc TP Language Server');
-    const traceChannel = vscode.window.createOutputChannel('Fanuc TP LSP Trace');
-    const rawStdoutChannel = vscode.window.createOutputChannel('Fanuc TP Raw stdout');
 
-    const serverOptions: ServerOptions = () => {
-        return new Promise<StreamInfo>((resolve, reject) => {
-            rawStdoutChannel.show(true);
-            rawStdoutChannel.appendLine('--- Spawning FanucTpLSP.exe ---');
-
-            // Get the path of the current workspace folder
-            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-            const cwd = workspaceFolder?.uri.fsPath;
-
-            if (cwd) {
-                rawStdoutChannel.appendLine(`Setting working directory to: ${cwd}`);
-            } else {
-                rawStdoutChannel.appendLine(`Warning: No workspace folder found. Using default working directory.`);
-            }
-
-            const command = 'FanucTpLSP.exe';
-            // Add the `cwd` property to the spawn options
-            const spawnOptions: cp.SpawnOptions = { shell: true, cwd: cwd };
-            const serverProcess = cp.spawn(command, [], spawnOptions);
-
-            if (!serverProcess || !serverProcess.pid) {
-                return reject(new Error(`Failed to launch server process: ${command}`));
-            }
-
-            if (!serverProcess.stdin || !serverProcess.stdout) {
-                return reject(new Error(`Server process streams are not available`));
-            }
-
-            rawStdoutChannel.appendLine(`Process spawned with PID: ${serverProcess.pid}. Attaching stream listeners...`);
-
-            if (serverProcess.stderr) {
-                serverProcess.stderr.on('data', (data) => {
-                    rawStdoutChannel.appendLine(`[RAW STDERR]: ${data.toString()}`);
-                });
-            }
-
-            if (serverProcess.stdout) {
-                serverProcess.stdout.on('data', (data) => {
-                    rawStdoutChannel.appendLine(`--- Received STDOUT Chunk ---`);
-                    rawStdoutChannel.appendLine(data.toString());
-                    rawStdoutChannel.appendLine(`--- End STDOUT Chunk ---`);
-                });
-            }
-            
-            serverProcess.on('exit', (code) => {
-                rawStdoutChannel.appendLine(`Server process exited with code: ${code}`);
-            });
-
-            resolve({
-                writer: serverProcess.stdin,
-                reader: serverProcess.stdout,
-            });
-        });
+    const serverExecutable: Executable = {
+        command: 'FanucTpLSP.exe',
+        transport: TransportKind.stdio,
+        options: {
+            cwd: workspace.workspaceFolders?.[0]?.uri.fsPath
+        }
     };
+    const serverOptions: ServerOptions = serverExecutable;
 
     const clientOptions: LanguageClientOptions = {
         documentSelector: [{ scheme: 'file', language: 'fanuctp' }],
         outputChannel: outputChannel,
-        traceOutputChannel: traceChannel,
         errorHandler: {
             error: (error, message, count) => {
                 outputChannel.appendLine(`[Connection Error]: ${error.message}`);

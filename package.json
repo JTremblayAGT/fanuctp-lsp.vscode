@@ -2,7 +2,7 @@
   "name": "fanuctp-lsp",
   "displayName": "Fanuc TP Language Server",
   "description": "Language server client for Fanuc TP programming language",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.74.0"
   },
