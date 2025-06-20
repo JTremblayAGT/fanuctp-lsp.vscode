@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { workspace, ExtensionContext } from 'vscode';
-import * as cp from 'child_process';
 import {
     LanguageClient,
     LanguageClientOptions,
